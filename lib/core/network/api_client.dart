@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -14,7 +15,14 @@ class ApiClient {
 
     try {
       final response = await _client
-          .get(url, headers: {'Content-Type': 'application/json', 'Accept': 'application/json'})
+          .get(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'User-Agent': 'PrayerTimes/1.0',
+            },
+          )
           .timeout(ApiConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
@@ -26,9 +34,15 @@ class ApiClient {
           response.statusCode,
         );
       }
+    } on SocketException catch (e) {
+      throw ApiException('İnternet bağlantısı hatası: ${e.message}');
+    } on HttpException catch (e) {
+      throw ApiException('HTTP hatası: ${e.message}');
+    } on FormatException catch (e) {
+      throw ApiException('Veri formatı hatası: ${e.message}');
     } catch (e) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      throw ApiException('Ağ hatası: $e');
     }
   }
 
