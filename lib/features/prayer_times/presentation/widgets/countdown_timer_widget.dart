@@ -34,9 +34,9 @@ class CountdownTimerWidget extends StatelessWidget {
         timeRemaining,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 18,
+          fontSize: 22,
           fontWeight: FontWeight.w600,
-          letterSpacing: 1.2,
+          letterSpacing: 1.3,
         ),
       ),
     );
