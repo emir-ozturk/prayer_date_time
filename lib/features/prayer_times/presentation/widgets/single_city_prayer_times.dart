@@ -1,0 +1,158 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../domain/entities/prayer_times.dart';
+
+class SingleCityPrayerTimes extends StatelessWidget {
+  final PrayerTimes prayerTimes;
+
+  const SingleCityPrayerTimes({super.key, required this.prayerTimes});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, spreadRadius: 5),
+        ],
+      ),
+      child: Column(children: [_buildHeader(), _buildPrayerTimesList()]),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(AppIcons.mosque, color: Colors.white, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              AppDateUtils.getCurrentDateFormatted(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrayerTimesList() {
+    final prayers = [
+      {'name': 'İmsak', 'time': prayerTimes.fajr, 'icon': AppIcons.fajr, 'color': AppColors.fajr},
+      {
+        'name': 'Güneş',
+        'time': prayerTimes.sunrise,
+        'icon': AppIcons.sunrise,
+        'color': AppColors.sunrise,
+      },
+      {'name': 'Öğle', 'time': prayerTimes.dhuhr, 'icon': AppIcons.dhuhr, 'color': AppColors.dhuhr},
+      {'name': 'İkindi', 'time': prayerTimes.asr, 'icon': AppIcons.asr, 'color': AppColors.asr},
+      {
+        'name': 'Akşam',
+        'time': prayerTimes.maghrib,
+        'icon': AppIcons.maghrib,
+        'color': AppColors.maghrib,
+      },
+      {'name': 'Yatsı', 'time': prayerTimes.isha, 'icon': AppIcons.isha, 'color': AppColors.isha},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: prayers.asMap().entries.map((entry) {
+          final index = entry.key;
+          final prayer = entry.value;
+          final isLast = index == prayers.length - 1;
+
+          return Column(
+            children: [
+              _buildPrayerTimeRow(
+                prayer['name'] as String,
+                prayer['time'] as String,
+                prayer['icon'] as IconData,
+                prayer['color'] as Color,
+              ),
+              if (!isLast) Divider(color: AppColors.textHint.withOpacity(0.3), height: 1),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildPrayerTimeRow(String name, String time, IconData icon, Color color) {
+    final isNear = AppDateUtils.isTimeNear(time);
+    final timeRemaining = AppDateUtils.getTimeRemaining(time);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      decoration: BoxDecoration(
+        color: isNear ? color.withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isNear ? color : AppColors.textPrimary,
+                  ),
+                ),
+                if (isNear && timeRemaining.isNotEmpty)
+                  Text(
+                    'Yaklaşıyor ($timeRemaining)',
+                    style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500),
+                  ),
+              ],
+            ),
+          ),
+          Text(
+            AppDateUtils.formatTime(time),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: isNear ? color : AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
