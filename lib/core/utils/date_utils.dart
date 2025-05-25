@@ -91,24 +91,65 @@ class AppDateUtils {
     }
   }
 
-  static bool isTimeNear(String timeString, {int minutesBefore = 15}) {
+  static String getCurrentPrayerTime(Map<String, String> prayerTimes) {
     try {
       final now = DateTime.now();
-      final parts = timeString.split(':');
-      if (parts.length >= 2) {
-        final targetHour = int.parse(parts[0]);
-        final targetMinute = int.parse(parts[1]);
+      final currentTime =
+          '${now.hour.toString().padLeft(2, '0')}:'
+          '${now.minute.toString().padLeft(2, '0')}';
 
-        var target = DateTime(now.year, now.month, now.day, targetHour, targetMinute);
+      final prayers = [
+        {'name': 'İmsak', 'time': prayerTimes['fajr'] ?? ''},
+        {'name': 'Güneş', 'time': prayerTimes['sunrise'] ?? ''},
+        {'name': 'Öğle', 'time': prayerTimes['dhuhr'] ?? ''},
+        {'name': 'İkindi', 'time': prayerTimes['asr'] ?? ''},
+        {'name': 'Akşam', 'time': prayerTimes['maghrib'] ?? ''},
+        {'name': 'Yatsı', 'time': prayerTimes['isha'] ?? ''},
+      ];
 
-        if (target.isBefore(now)) {
-          target = target.add(const Duration(days: 1));
+      // Find current prayer time
+      String currentPrayer = '';
+      for (int i = 0; i < prayers.length; i++) {
+        final prayer = prayers[i];
+        final prayerTime = prayer['time']!;
+
+        if (prayerTime.isEmpty) continue;
+
+        // Check if current time is after this prayer time
+        if (_isTimeAfter(currentTime, prayerTime)) {
+          currentPrayer = prayer['name']!;
+        } else {
+          break;
         }
-
-        final difference = target.difference(now);
-        return difference.inMinutes <= minutesBefore && difference.inMinutes >= 0;
       }
-      return false;
+
+      // If no prayer found (before first prayer), it's the last prayer of previous day
+      if (currentPrayer.isEmpty) {
+        currentPrayer = 'Yatsı';
+      }
+
+      return currentPrayer;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  static bool _isTimeAfter(String time1, String time2) {
+    try {
+      final parts1 = time1.split(':');
+      final parts2 = time2.split(':');
+
+      if (parts1.length < 2 || parts2.length < 2) return false;
+
+      final hour1 = int.tryParse(parts1[0]) ?? 0;
+      final minute1 = int.tryParse(parts1[1]) ?? 0;
+      final hour2 = int.tryParse(parts2[0]) ?? 0;
+      final minute2 = int.tryParse(parts2[1]) ?? 0;
+
+      final totalMinutes1 = hour1 * 60 + minute1;
+      final totalMinutes2 = hour2 * 60 + minute2;
+
+      return totalMinutes1 > totalMinutes2;
     } catch (e) {
       return false;
     }
@@ -118,20 +159,5 @@ class AppDateUtils {
     final now = DateTime.now();
     final hour = now.hour;
     return hour >= 6 && hour < 18; // 6 AM to 6 PM is considered daytime
-  }
-
-  static String getTimeOfDayGreeting() {
-    final now = DateTime.now();
-    final hour = now.hour;
-
-    if (hour >= 5 && hour < 12) {
-      return 'Günaydın';
-    } else if (hour >= 12 && hour < 17) {
-      return 'İyi günler';
-    } else if (hour >= 17 && hour < 21) {
-      return 'İyi akşamlar';
-    } else {
-      return 'İyi geceler';
-    }
   }
 }

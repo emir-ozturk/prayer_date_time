@@ -15,10 +15,10 @@ class SingleCityPrayerTimes extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, spreadRadius: 5),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, spreadRadius: 5),
         ],
       ),
       child: Column(children: [_buildHeader(), _buildPrayerTimesList()]),
@@ -78,6 +78,16 @@ class SingleCityPrayerTimes extends StatelessWidget {
       {'name': 'Yatsı', 'time': prayerTimes.isha, 'icon': AppIcons.isha, 'color': AppColors.isha},
     ];
 
+    // Get current prayer time
+    final currentPrayerName = AppDateUtils.getCurrentPrayerTime({
+      'fajr': prayerTimes.fajr,
+      'sunrise': prayerTimes.sunrise,
+      'dhuhr': prayerTimes.dhuhr,
+      'asr': prayerTimes.asr,
+      'maghrib': prayerTimes.maghrib,
+      'isha': prayerTimes.isha,
+    });
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -93,8 +103,9 @@ class SingleCityPrayerTimes extends StatelessWidget {
                 prayer['time'] as String,
                 prayer['icon'] as IconData,
                 prayer['color'] as Color,
+                currentPrayerName,
               ),
-              if (!isLast) Divider(color: AppColors.textHint.withOpacity(0.3), height: 1),
+              if (!isLast) Divider(color: AppColors.textHint.withValues(alpha: 0.3), height: 1),
             ],
           );
         }).toList(),
@@ -102,14 +113,19 @@ class SingleCityPrayerTimes extends StatelessWidget {
     );
   }
 
-  Widget _buildPrayerTimeRow(String name, String time, IconData icon, Color color) {
-    final isNear = AppDateUtils.isTimeNear(time);
-    final timeRemaining = AppDateUtils.getTimeRemaining(time);
+  Widget _buildPrayerTimeRow(
+    String name,
+    String time,
+    IconData icon,
+    Color color,
+    String currentPrayerName,
+  ) {
+    final isCurrent = name == currentPrayerName;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
-        color: isNear ? color.withOpacity(0.1) : Colors.transparent,
+        color: isCurrent ? color.withValues(alpha: 0.1) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -117,7 +133,7 @@ class SingleCityPrayerTimes extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -132,12 +148,12 @@ class SingleCityPrayerTimes extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: isNear ? color : AppColors.textPrimary,
+                    color: isCurrent ? color : AppColors.textPrimary,
                   ),
                 ),
-                if (isNear && timeRemaining.isNotEmpty)
+                if (isCurrent)
                   Text(
-                    'Yaklaşıyor ($timeRemaining)',
+                    'Şu anki namaz vakti',
                     style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500),
                   ),
               ],
@@ -148,7 +164,7 @@ class SingleCityPrayerTimes extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: isNear ? color : AppColors.textPrimary,
+              color: isCurrent ? color : AppColors.textPrimary,
             ),
           ),
         ],

@@ -78,6 +78,16 @@ class PrayerTimeCard extends StatelessWidget {
   }
 
   Widget _buildPrayerTimes() {
+    // Get current prayer time
+    final currentPrayerName = AppDateUtils.getCurrentPrayerTime({
+      'fajr': prayerTimes.fajr,
+      'sunrise': prayerTimes.sunrise,
+      'dhuhr': prayerTimes.dhuhr,
+      'asr': prayerTimes.asr,
+      'maghrib': prayerTimes.maghrib,
+      'isha': prayerTimes.isha,
+    });
+
     return Column(
       children: [
         PrayerTimeRow(
@@ -85,36 +95,42 @@ class PrayerTimeCard extends StatelessWidget {
           time: prayerTimes.fajr,
           icon: AppIcons.fajr,
           color: AppColors.fajr,
+          isCurrent: currentPrayerName == 'İmsak',
         ),
         PrayerTimeRow(
           name: 'Güneş',
           time: prayerTimes.sunrise,
           icon: AppIcons.sunrise,
           color: AppColors.sunrise,
+          isCurrent: currentPrayerName == 'Güneş',
         ),
         PrayerTimeRow(
           name: 'Öğle',
           time: prayerTimes.dhuhr,
           icon: AppIcons.dhuhr,
           color: AppColors.dhuhr,
+          isCurrent: currentPrayerName == 'Öğle',
         ),
         PrayerTimeRow(
           name: 'İkindi',
           time: prayerTimes.asr,
           icon: AppIcons.asr,
           color: AppColors.asr,
+          isCurrent: currentPrayerName == 'İkindi',
         ),
         PrayerTimeRow(
           name: 'Akşam',
           time: prayerTimes.maghrib,
           icon: AppIcons.maghrib,
           color: AppColors.maghrib,
+          isCurrent: currentPrayerName == 'Akşam',
         ),
         PrayerTimeRow(
           name: 'Yatsı',
           time: prayerTimes.isha,
           icon: AppIcons.isha,
           color: AppColors.isha,
+          isCurrent: currentPrayerName == 'Yatsı',
         ),
       ],
     );
@@ -139,17 +155,16 @@ class PrayerTimeCard extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Şehri Kaldır'),
-        content: Text(
-          '${prayerTimes.districtName} şehrini listeden kaldırmak istediğinizden emin misiniz?',
-        ),
+        content: Text('${prayerTimes.districtName} şehrini kaldırmak istediğinizden emin misiniz?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('İptal')),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
               context.read<PrayerTimesBloc>().add(RemoveCity(districtId: districtId));
+              Navigator.of(context).pop();
             },
-            child: const Text('Kaldır'),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Kaldır', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

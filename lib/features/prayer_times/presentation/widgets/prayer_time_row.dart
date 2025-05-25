@@ -8,6 +8,7 @@ class PrayerTimeRow extends StatelessWidget {
   final String time;
   final IconData icon;
   final Color color;
+  final bool isCurrent;
 
   const PrayerTimeRow({
     super.key,
@@ -15,26 +16,25 @@ class PrayerTimeRow extends StatelessWidget {
     required this.time,
     required this.icon,
     required this.color,
+    this.isCurrent = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isNear = AppDateUtils.isTimeNear(time);
-
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
-        color: isNear ? color.withOpacity(0.1) : Colors.transparent,
+        color: isCurrent ? color.withValues(alpha: 0.1) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-        border: isNear ? Border.all(color: color.withOpacity(0.3)) : null,
+        border: isCurrent ? Border.all(color: color.withValues(alpha: 0.3)) : null,
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -45,8 +45,8 @@ class PrayerTimeRow extends StatelessWidget {
               name,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: isNear ? FontWeight.bold : FontWeight.normal,
-                color: isNear ? color : AppColors.textPrimary,
+                fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                color: isCurrent ? color : AppColors.textPrimary,
               ),
             ),
           ),
@@ -55,16 +55,16 @@ class PrayerTimeRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: isNear ? color : AppColors.textPrimary,
+              color: isCurrent ? color : AppColors.textPrimary,
             ),
           ),
-          if (isNear) ...[
+          if (isCurrent) ...[
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
               child: const Text(
-                'Yaklaşıyor',
+                'Şu anki',
                 style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),

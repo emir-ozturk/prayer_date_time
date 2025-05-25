@@ -17,26 +17,21 @@ class MonthlyViewButton extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Material(
         elevation: 0,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         child: InkWell(
           onTap: () => _navigateToMonthlyView(context),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.white, AppColors.primary.withValues(alpha: 0.02)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.1), width: 1.5),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.06),
-                  blurRadius: 15,
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  blurRadius: 20,
                   spreadRadius: 0,
-                  offset: const Offset(0, 6),
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -57,20 +52,20 @@ class MonthlyViewButton extends StatelessWidget {
 
   Widget _buildIcon() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             AppColors.primary.withValues(alpha: 0.1),
-            AppColors.primary.withValues(alpha: 0.06),
+            AppColors.primary.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.15), width: 1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1), width: 1),
       ),
-      child: const Icon(AppIcons.schedule, color: AppColors.primary, size: 22),
+      child: const Icon(AppIcons.schedule, color: AppColors.primary, size: 24),
     );
   }
 
@@ -85,17 +80,17 @@ class MonthlyViewButton extends StatelessWidget {
             fontSize: 13,
             color: AppColors.textSecondary.withValues(alpha: 0.8),
             fontWeight: FontWeight.w500,
-            letterSpacing: 0.3,
+            letterSpacing: 0.5,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           'Son 30 Günü Görüntüle',
           style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
             color: AppColors.primary,
-            letterSpacing: 0.2,
+            letterSpacing: 0.5,
           ),
         ),
       ],
