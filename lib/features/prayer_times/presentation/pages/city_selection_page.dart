@@ -76,7 +76,7 @@ class CitySelectionPage extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(16),
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   child: Row(
                     children: [
                       IconButton(

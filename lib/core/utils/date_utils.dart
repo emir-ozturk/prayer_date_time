@@ -160,4 +160,80 @@ class AppDateUtils {
     final hour = now.hour;
     return hour >= 6 && hour < 18; // 6 AM to 6 PM is considered daytime
   }
+
+  /// Determines the animation type based on current prayer time period
+  /// Returns: 'night', 'dawn', 'day', or 'sunset'
+  static String getPrayerBasedAnimationType(Map<String, String> prayerTimes) {
+    try {
+      final now = DateTime.now();
+      final currentTime =
+          '${now.hour.toString().padLeft(2, '0')}:'
+          '${now.minute.toString().padLeft(2, '0')}';
+
+      final fajr = prayerTimes['fajr'] ?? '';
+      final sunrise = prayerTimes['sunrise'] ?? '';
+      final dhuhr = prayerTimes['dhuhr'] ?? '';
+      final asr = prayerTimes['asr'] ?? '';
+      final maghrib = prayerTimes['maghrib'] ?? '';
+      final isha = prayerTimes['isha'] ?? '';
+
+      // Check each prayer time period
+      if (_isTimeBetween(currentTime, fajr, sunrise)) {
+        return 'night'; // İmsak - Güneş arası -> night
+      } else if (_isTimeBetween(currentTime, sunrise, dhuhr)) {
+        return 'dawn'; // Güneş - Öğle arası -> dawn
+      } else if (_isTimeBetween(currentTime, dhuhr, asr)) {
+        return 'day'; // Öğle - İkindi arası -> day
+      } else if (_isTimeBetween(currentTime, asr, maghrib)) {
+        return 'day'; // İkindi - Akşam arası -> day
+      } else if (_isTimeBetween(currentTime, maghrib, isha)) {
+        return 'sunset'; // Akşam - Yatsı arası -> sunset
+      } else {
+        return 'night'; // Yatsı - İmsak arası -> night
+      }
+    } catch (e) {
+      // Fallback to time-based logic if prayer times are not available
+      final hour = DateTime.now().hour;
+      if (hour >= 5 && hour < 7) {
+        return 'dawn';
+      } else if (hour >= 7 && hour < 17) {
+        return 'day';
+      } else if (hour >= 17 && hour < 19) {
+        return 'sunset';
+      } else {
+        return 'night';
+      }
+    }
+  }
+
+  /// Checks if current time is between two prayer times
+  static bool _isTimeBetween(String currentTime, String startTime, String endTime) {
+    try {
+      if (startTime.isEmpty || endTime.isEmpty) return false;
+
+      final current = _timeToMinutes(currentTime);
+      final start = _timeToMinutes(startTime);
+      final end = _timeToMinutes(endTime);
+
+      // Handle case where end time is next day (e.g., after midnight)
+      if (end < start) {
+        return current >= start || current < end;
+      } else {
+        return current >= start && current < end;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Converts time string to minutes since midnight
+  static int _timeToMinutes(String time) {
+    final parts = time.split(':');
+    if (parts.length < 2) return 0;
+
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
+
+    return hour * 60 + minute;
+  }
 }

@@ -6,8 +6,9 @@ import '../../../../core/utils/date_utils.dart';
 
 class AnimatedBackground extends StatefulWidget {
   final Widget child;
+  final Map<String, String>? prayerTimes;
 
-  const AnimatedBackground({super.key, required this.child});
+  const AnimatedBackground({super.key, required this.child, this.prayerTimes});
 
   @override
   State<AnimatedBackground> createState() => _AnimatedBackgroundState();
@@ -42,14 +43,18 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
 
   @override
   Widget build(BuildContext context) {
-    final isDaytime = AppDateUtils.isDaytime();
+    final animationType = widget.prayerTimes != null
+        ? AppDateUtils.getPrayerBasedAnimationType(widget.prayerTimes!)
+        : _getFallbackAnimationType();
+
+    final isDaytime = animationType == 'dawn' || animationType == 'day';
 
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: isDaytime ? _getDaytimeColors() : _getNighttimeColors(),
+          colors: _getColorsForAnimationType(animationType),
         ),
       ),
       child: Stack(
@@ -62,39 +67,47 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
     );
   }
 
-  List<Color> _getDaytimeColors() {
+  String _getFallbackAnimationType() {
     final hour = DateTime.now().hour;
-
     if (hour >= 5 && hour < 7) {
-      // Dawn
-      return [
-        const Color(0xFFFFB347), // Orange
-        const Color(0xFFFFD700), // Gold
-        const Color(0xFF87CEEB), // Sky blue
-      ];
+      return 'dawn';
     } else if (hour >= 7 && hour < 17) {
-      // Day
-      return [
-        const Color(0xFF87CEEB), // Sky blue
-        const Color(0xFF98D8E8), // Light blue
-        const Color(0xFFE6F3FF), // Very light blue
-      ];
+      return 'day';
+    } else if (hour >= 17 && hour < 19) {
+      return 'sunset';
     } else {
-      // Sunset
-      return [
-        const Color(0xFFFF6B6B), // Red
-        const Color(0xFFFFD93D), // Yellow
-        const Color(0xFF6BCF7F), // Light green
-      ];
+      return 'night';
     }
   }
 
-  List<Color> _getNighttimeColors() {
-    return [
-      const Color(0xFF191970), // Midnight blue
-      const Color(0xFF483D8B), // Dark slate blue
-      const Color(0xFF2F2F4F), // Dark slate gray
-    ];
+  List<Color> _getColorsForAnimationType(String animationType) {
+    switch (animationType) {
+      case 'dawn':
+        return [
+          const Color(0xFFFFB347), // Orange
+          const Color(0xFFFFD700), // Gold
+          const Color(0xFF87CEEB), // Sky blue
+        ];
+      case 'day':
+        return [
+          const Color(0xFF87CEEB), // Sky blue
+          const Color(0xFF98D8E8), // Light blue
+          const Color(0xFFE6F3FF), // Very light blue
+        ];
+      case 'sunset':
+        return [
+          const Color(0xFFFF6B6B), // Red
+          const Color(0xFFFFD93D), // Yellow
+          const Color(0xFF6BCF7F), // Light green
+        ];
+      case 'night':
+      default:
+        return [
+          const Color(0xFF191970), // Midnight blue
+          const Color(0xFF483D8B), // Dark slate blue
+          const Color(0xFF2F2F4F), // Dark slate gray
+        ];
+    }
   }
 
   List<Widget> _buildDaytimeElements() {
@@ -113,7 +126,11 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
                 shape: BoxShape.circle,
                 gradient: RadialGradient(colors: [Colors.yellow.shade300, Colors.orange.shade400]),
                 boxShadow: [
-                  BoxShadow(color: Colors.yellow.withOpacity(0.3), blurRadius: 20, spreadRadius: 5),
+                  BoxShadow(
+                    color: Colors.yellow.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
                 ],
               ),
             ),
@@ -141,7 +158,11 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
                 shape: BoxShape.circle,
                 gradient: RadialGradient(colors: [Colors.grey.shade200, Colors.grey.shade400]),
                 boxShadow: [
-                  BoxShadow(color: Colors.white.withOpacity(0.2), blurRadius: 15, spreadRadius: 3),
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    blurRadius: 15,
+                    spreadRadius: 3,
+                  ),
                 ],
               ),
             ),
@@ -163,7 +184,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
           builder: (context, child) {
             return Transform.translate(
               offset: Offset(_sunController.value * 50 - 25, 0),
-              child: Icon(Icons.cloud, size: 40, color: Colors.white.withOpacity(0.7)),
+              child: Icon(Icons.cloud, size: 40, color: Colors.white.withValues(alpha: 0.7)),
             );
           },
         ),
@@ -176,7 +197,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
           builder: (context, child) {
             return Transform.translate(
               offset: Offset(-_sunController.value * 30 + 15, 0),
-              child: Icon(Icons.cloud, size: 30, color: Colors.white.withOpacity(0.5)),
+              child: Icon(Icons.cloud, size: 30, color: Colors.white.withValues(alpha: 0.5)),
             );
           },
         ),

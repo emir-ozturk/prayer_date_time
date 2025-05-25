@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/entities/prayer_times.dart';
+import '../bloc/prayer_times_bloc.dart';
+import '../bloc/prayer_times_state.dart';
 import '../widgets/add_city_fab.dart';
 import '../widgets/animated_background.dart';
 import '../widgets/app_drawer.dart';
@@ -25,8 +29,47 @@ class HomePage extends StatelessWidget {
         actions: HomeAppBarActions.build(context),
       ),
       drawer: const AppDrawer(),
-      body: const AnimatedBackground(child: HomeBodyContent()),
+      body: BlocBuilder<PrayerTimesBloc, PrayerTimesState>(
+        builder: (context, state) {
+          Map<String, String>? prayerTimes;
+
+          if (state is PrayerTimesLoaded) {
+            final selectedCityPrayerTimes = state.selectedCityPrayerTimes;
+            if (selectedCityPrayerTimes != null && selectedCityPrayerTimes.isNotEmpty) {
+              final todayPrayerTimes = _getTodayPrayerTimes(selectedCityPrayerTimes);
+              if (todayPrayerTimes != null) {
+                prayerTimes = {
+                  'fajr': todayPrayerTimes.fajr,
+                  'sunrise': todayPrayerTimes.sunrise,
+                  'dhuhr': todayPrayerTimes.dhuhr,
+                  'asr': todayPrayerTimes.asr,
+                  'maghrib': todayPrayerTimes.maghrib,
+                  'isha': todayPrayerTimes.isha,
+                };
+              }
+            }
+          }
+
+          return AnimatedBackground(prayerTimes: prayerTimes, child: const HomeBodyContent());
+        },
+      ),
       floatingActionButton: const AddCityFab(),
     );
+  }
+
+  PrayerTimes? _getTodayPrayerTimes(List<PrayerTimes> prayerTimesList) {
+    final today = DateTime.now();
+
+    // Try to find today's prayer times
+    for (final prayerTimes in prayerTimesList) {
+      if (prayerTimes.date.day == today.day &&
+          prayerTimes.date.month == today.month &&
+          prayerTimes.date.year == today.year) {
+        return prayerTimes;
+      }
+    }
+
+    // If not found, return the first available
+    return prayerTimesList.isNotEmpty ? prayerTimesList.first : null;
   }
 }
