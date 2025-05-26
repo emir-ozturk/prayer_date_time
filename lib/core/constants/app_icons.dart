@@ -20,7 +20,7 @@ class AppIcons {
   static const IconData add = Icons.add;
   static const IconData delete = Icons.delete_outline;
   static const IconData refresh = Icons.refresh;
-  static const IconData timer = Icons.timer;
+  static const IconData timer = Icons.timer_outlined;
   static const IconData close = Icons.close;
   static const IconData check = Icons.check;
   static const IconData error = Icons.error;

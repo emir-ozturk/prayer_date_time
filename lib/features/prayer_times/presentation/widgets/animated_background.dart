@@ -23,6 +23,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
   late AnimationController _sunController;
   late AnimationController _moonController;
   late AnimationController _starsController;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -58,6 +59,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
           if (selectedCityPrayerTimes != null && selectedCityPrayerTimes.isNotEmpty) {
             final todayPrayerTimes = _getTodayPrayerTimes(selectedCityPrayerTimes);
             if (todayPrayerTimes != null) {
+              _isInitialized = true;
               context.read<BackgroundAnimationBloc>().add(
                 UpdateBackgroundAnimation(
                   currentTime: DateTime.now(),
@@ -77,6 +79,18 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
       },
       child: BlocBuilder<BackgroundAnimationBloc, BackgroundAnimationState>(
         builder: (context, state) {
+          if (!_isInitialized || state is BackgroundAnimationInitial) {
+            return Container(
+              color: Colors.white,
+              child: Stack(
+                children: [
+                  widget.child,
+                  Center(child: CircularProgressIndicator()),
+                ],
+              ),
+            );
+          }
+
           String animationType = 'night';
           if (state is BackgroundAnimationUpdate) {
             animationType = state.animationType;

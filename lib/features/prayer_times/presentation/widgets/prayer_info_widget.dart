@@ -65,7 +65,7 @@ class PrayerInfoWidget extends StatelessWidget {
         Text(
           'Sonraki Namaz',
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 14,
             color: AppColors.textSecondary.withValues(alpha: 0.8),
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,

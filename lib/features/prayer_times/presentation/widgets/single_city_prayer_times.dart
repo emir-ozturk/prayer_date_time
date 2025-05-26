@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prayer_date_time/features/prayer_times/presentation/bloc/prayer_times_bloc.dart';
+import 'package:prayer_date_time/features/prayer_times/presentation/bloc/prayer_times_event.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_icons.dart';
@@ -21,13 +24,13 @@ class SingleCityPrayerTimes extends StatelessWidget {
           BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, spreadRadius: 5),
         ],
       ),
-      child: Column(children: [_buildHeader(), _buildPrayerTimesList()]),
+      child: Column(children: [_buildHeader(context), _buildPrayerTimesList()]),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.secondary],
@@ -40,18 +43,32 @@ class SingleCityPrayerTimes extends StatelessWidget {
         ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Icon(AppIcons.dateRange, color: Colors.white, size: 24),
-          const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              AppDateUtils.getCurrentDateFormatted(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+            child: Row(
+              children: [
+                const Icon(AppIcons.dateRange, color: Colors.white, size: 24),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    AppDateUtils.getCurrentDateFormatted(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
+          IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(AppIcons.refresh, color: Colors.white),
+            onPressed: () {
+              context.read<PrayerTimesBloc>().add(LoadSavedCities());
+            },
           ),
         ],
       ),

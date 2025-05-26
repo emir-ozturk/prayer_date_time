@@ -81,9 +81,9 @@ class MonthlyViewButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Aylık Görünüm',
+          'Aylık Vakitler',
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 14,
             color: AppColors.textSecondary.withValues(alpha: 0.8),
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
@@ -91,7 +91,7 @@ class MonthlyViewButton extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Son 30 Günü Görüntüle',
+          'Son 30 Gün',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,

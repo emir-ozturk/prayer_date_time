@@ -6,7 +6,6 @@ import '../bloc/prayer_times_state.dart';
 import '../widgets/add_city_fab.dart';
 import '../widgets/animated_background.dart';
 import '../widgets/app_drawer.dart';
-import '../widgets/home/home_app_bar_actions.dart';
 import '../widgets/home/home_app_bar_title.dart';
 import '../widgets/home/home_body_content.dart';
 
@@ -25,7 +24,7 @@ class HomePage extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: false,
         title: const HomeAppBarTitle(),
-        actions: HomeAppBarActions.build(context),
+        // actions: HomeAppBarActions.build(context),
       ),
       drawer: const AppDrawer(),
       body: BlocBuilder<PrayerTimesBloc, PrayerTimesState>(
