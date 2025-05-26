@@ -177,93 +177,58 @@ class AppDateUtils {
       final maghrib = prayerTimes['maghrib'] ?? '';
       final isha = prayerTimes['isha'] ?? '';
 
-      print('DEBUG: Current time: $currentTime');
-      print(
-        'DEBUG: Prayer times - Fajr: $fajr, Sunrise: $sunrise, Dhuhr: $dhuhr, Asr: $asr, Maghrib: $maghrib, Isha: $isha',
-      );
-
       // Check each prayer time period
-      if (_isTimeBetween(currentTime, '00:00', fajr) ||
-          _isTimeBetween(currentTime, isha, '23:59')) {
-        print('DEBUG: Between Isha-Fajr -> night');
+      if (isTimeBetween(currentTime, '00:00', fajr) || isTimeBetween(currentTime, isha, '23:59')) {
         return 'night'; // Yatsı - İmsak arası -> night
-      } else if (_isTimeBetween(currentTime, fajr, sunrise)) {
-        print('DEBUG: Between Fajr-Sunrise -> dawn');
-        return 'dawn'; // İmsak - Güneş arası -> dawn (şafak)
-      } else if (_isTimeBetween(currentTime, sunrise, dhuhr)) {
-        print('DEBUG: Between Sunrise-Dhuhr -> day');
-        return 'day'; // Güneş - Öğle arası -> day
-      } else if (_isTimeBetween(currentTime, dhuhr, asr)) {
-        print('DEBUG: Between Dhuhr-Asr -> day');
+      } else if (isTimeBetween(currentTime, fajr, sunrise)) {
+        return 'night'; // İmsak - Güneş arası -> night
+      } else if (isTimeBetween(currentTime, sunrise, dhuhr)) {
+        return 'dawn'; // Güneş - Öğle arası -> dawn
+      } else if (isTimeBetween(currentTime, dhuhr, asr)) {
         return 'day'; // Öğle - İkindi arası -> day
-      } else if (_isTimeBetween(currentTime, asr, maghrib)) {
-        print('DEBUG: Between Asr-Maghrib -> day (late afternoon)');
-        return 'day'; // İkindi - Akşam arası -> day (geç öğleden sonra)
-      } else if (_isTimeBetween(currentTime, maghrib, isha)) {
-        print('DEBUG: Between Maghrib-Isha -> sunset');
+      } else if (isTimeBetween(currentTime, asr, maghrib)) {
+        return 'day'; // İkindi - Akşam arası -> day
+      } else if (isTimeBetween(currentTime, maghrib, isha)) {
         return 'sunset'; // Akşam - Yatsı arası -> sunset
-      } else {
-        print('DEBUG: No match found, using fallback');
-        // Fallback to time-based logic
-        final hour = now.hour;
-        if (hour >= 4 && hour < 6) {
-          return 'night';
-        } else if (hour >= 6 && hour < 8) {
-          return 'dawn';
-        } else if (hour >= 8 && hour < 18) {
-          return 'day';
-        } else if (hour >= 18 && hour < 20) {
-          return 'sunset';
-        } else {
-          return 'night';
-        }
       }
+
+      return 'night';
     } catch (e) {
-      print('DEBUG: Error in getPrayerBasedAnimationType: $e');
-      // Fallback to time-based logic if prayer times are not available
-      final hour = DateTime.now().hour;
-      if (hour >= 4 && hour < 6) {
-        return 'night';
-      } else if (hour >= 6 && hour < 8) {
-        return 'dawn';
-      } else if (hour >= 8 && hour < 18) {
-        return 'day';
-      } else if (hour >= 18 && hour < 20) {
-        return 'sunset';
-      } else {
-        return 'night';
-      }
+      return 'night';
     }
   }
 
-  /// Checks if current time is between two prayer times
-  static bool _isTimeBetween(String currentTime, String startTime, String endTime) {
+  /// Checks if time1 is between time2 and time3
+  /// All times should be in 24-hour format (HH:mm)
+  static bool isTimeBetween(String time1, String time2, String time3) {
     try {
-      if (startTime.isEmpty || endTime.isEmpty) return false;
+      if (time2.isEmpty || time3.isEmpty) return false;
 
-      final current = _timeToMinutes(currentTime);
-      final start = _timeToMinutes(startTime);
-      final end = _timeToMinutes(endTime);
+      final parts1 = time1.split(':');
+      final parts2 = time2.split(':');
+      final parts3 = time3.split(':');
 
-      // Handle case where end time is next day (e.g., after midnight)
-      if (end < start) {
-        return current >= start || current < end;
+      if (parts1.length < 2 || parts2.length < 2 || parts3.length < 2) return false;
+
+      final hour1 = int.tryParse(parts1[0]) ?? 0;
+      final minute1 = int.tryParse(parts1[1]) ?? 0;
+      final hour2 = int.tryParse(parts2[0]) ?? 0;
+      final minute2 = int.tryParse(parts2[1]) ?? 0;
+      final hour3 = int.tryParse(parts3[0]) ?? 0;
+      final minute3 = int.tryParse(parts3[1]) ?? 0;
+
+      final totalMinutes1 = hour1 * 60 + minute1;
+      final totalMinutes2 = hour2 * 60 + minute2;
+      final totalMinutes3 = hour3 * 60 + minute3;
+
+      if (totalMinutes2 <= totalMinutes3) {
+        return totalMinutes1 >= totalMinutes2 && totalMinutes1 < totalMinutes3;
       } else {
-        return current >= start && current < end;
+        // Handle overnight case (e.g., between 23:00 and 05:00)
+        return totalMinutes1 >= totalMinutes2 || totalMinutes1 < totalMinutes3;
       }
     } catch (e) {
       return false;
     }
-  }
-
-  /// Converts time string to minutes since midnight
-  static int _timeToMinutes(String time) {
-    final parts = time.split(':');
-    if (parts.length < 2) return 0;
-
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = int.tryParse(parts[1]) ?? 0;
-
-    return hour * 60 + minute;
   }
 }

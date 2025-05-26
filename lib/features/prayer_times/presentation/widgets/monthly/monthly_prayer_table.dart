@@ -35,7 +35,7 @@ class MonthlyPrayerTable extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -65,14 +65,14 @@ class MonthlyPrayerTable extends StatelessWidget {
 
   Widget _buildTableRow(PrayerTimes prayerTime) {
     final isToday = _isToday(prayerTime.date);
-    final backgroundColor = isToday ? AppColors.primary.withOpacity(0.1) : Colors.transparent;
+    final backgroundColor = isToday ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.2), width: 1)),
+        border: Border(bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2), width: 1)),
       ),
       child: Row(
         children: [

@@ -1,11 +1,12 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/utils/date_utils.dart';
 import '../../domain/entities/prayer_times.dart';
+import '../bloc/background_animation_bloc.dart';
+import '../bloc/background_animation_event.dart';
+import '../bloc/background_animation_state.dart';
 import '../bloc/prayer_times_bloc.dart';
 import '../bloc/prayer_times_state.dart';
 
@@ -22,8 +23,6 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
   late AnimationController _sunController;
   late AnimationController _moonController;
   late AnimationController _starsController;
-  late Timer _animationUpdateTimer;
-  String _currentAnimationType = 'night';
 
   @override
   void initState() {
@@ -38,11 +37,8 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
     _starsController = AnimationController(duration: const Duration(seconds: 3), vsync: this)
       ..repeat(reverse: true);
 
-    // Update animation type based on current prayer time every minute
-    _updateAnimationType();
-    _animationUpdateTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      _updateAnimationType();
-    });
+    // Start the background animation timer
+    context.read<BackgroundAnimationBloc>().add(StartBackgroundAnimationTimer());
   }
 
   @override
@@ -50,49 +46,62 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
     _sunController.dispose();
     _moonController.dispose();
     _starsController.dispose();
-    _animationUpdateTimer.cancel();
     super.dispose();
   }
 
-  void _updateAnimationType() {
-    final state = context.read<PrayerTimesBloc>().state;
-    String newAnimationType;
-
-    if (state is PrayerTimesLoaded) {
-      final selectedCityPrayerTimes = state.selectedCityPrayerTimes;
-      if (selectedCityPrayerTimes != null && selectedCityPrayerTimes.isNotEmpty) {
-        final todayPrayerTimes = _getTodayPrayerTimes(selectedCityPrayerTimes);
-        if (todayPrayerTimes != null) {
-          final prayerTimesMap = {
-            'fajr': todayPrayerTimes.fajr,
-            'sunrise': todayPrayerTimes.sunrise,
-            'dhuhr': todayPrayerTimes.dhuhr,
-            'asr': todayPrayerTimes.asr,
-            'maghrib': todayPrayerTimes.maghrib,
-            'isha': todayPrayerTimes.isha,
-          };
-          newAnimationType = AppDateUtils.getPrayerBasedAnimationType(prayerTimesMap);
-          print('Prayer times available - Animation type: $newAnimationType');
-          print('Current time: ${DateTime.now().hour}:${DateTime.now().minute}');
-          print('Prayer times: $prayerTimesMap');
-        } else {
-          newAnimationType = _getFallbackAnimationType();
-          print('No today prayer times found - Using fallback: $newAnimationType');
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<PrayerTimesBloc, PrayerTimesState>(
+      listener: (context, state) {
+        if (state is PrayerTimesLoaded) {
+          final selectedCityPrayerTimes = state.selectedCityPrayerTimes;
+          if (selectedCityPrayerTimes != null && selectedCityPrayerTimes.isNotEmpty) {
+            final todayPrayerTimes = _getTodayPrayerTimes(selectedCityPrayerTimes);
+            if (todayPrayerTimes != null) {
+              context.read<BackgroundAnimationBloc>().add(
+                UpdateBackgroundAnimation(
+                  currentTime: DateTime.now(),
+                  prayerTimes: {
+                    'fajr': todayPrayerTimes.fajr,
+                    'sunrise': todayPrayerTimes.sunrise,
+                    'dhuhr': todayPrayerTimes.dhuhr,
+                    'asr': todayPrayerTimes.asr,
+                    'maghrib': todayPrayerTimes.maghrib,
+                    'isha': todayPrayerTimes.isha,
+                  },
+                ),
+              );
+            }
+          }
         }
-      } else {
-        newAnimationType = _getFallbackAnimationType();
-        print('No prayer times list - Using fallback: $newAnimationType');
-      }
-    } else {
-      newAnimationType = _getFallbackAnimationType();
-      print('Prayer times not loaded - Using fallback: $newAnimationType');
-    }
+      },
+      child: BlocBuilder<BackgroundAnimationBloc, BackgroundAnimationState>(
+        builder: (context, state) {
+          String animationType = 'night';
+          if (state is BackgroundAnimationUpdate) {
+            animationType = state.animationType;
+          }
 
-    if (newAnimationType != _currentAnimationType) {
-      setState(() {
-        _currentAnimationType = newAnimationType;
-      });
-    }
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: _getColorsForAnimationType(animationType),
+              ),
+            ),
+            child: Stack(
+              children: [
+                if (animationType == 'dawn' || animationType == 'day') ..._buildDaytimeElements(),
+                if (animationType == 'night' || animationType == 'sunset')
+                  ..._buildNighttimeElements(),
+                widget.child,
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   PrayerTimes? _getTodayPrayerTimes(List<PrayerTimes> prayerTimesList) {
@@ -107,48 +116,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
       }
     }
 
-    // If not found, return the first available
     return prayerTimesList.isNotEmpty ? prayerTimesList.first : null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDaytime = _currentAnimationType == 'dawn' || _currentAnimationType == 'day';
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: _getColorsForAnimationType(_currentAnimationType),
-        ),
-      ),
-      child: Stack(
-        children: [
-          if (isDaytime) ..._buildDaytimeElements(),
-          if (!isDaytime) ..._buildNighttimeElements(),
-          widget.child,
-        ],
-      ),
-    );
-  }
-
-  String _getFallbackAnimationType() {
-    final hour = DateTime.now().hour;
-
-    if (hour >= 4 && hour < 6) {
-      return 'night'; // Sabah öncesi
-    } else if (hour >= 6 && hour < 8) {
-      return 'dawn'; // Şafak/Sabah
-    } else if (hour >= 8 && hour < 16) {
-      return 'day'; // Gündüz (öğle ve ikindi dahil)
-    } else if (hour >= 16 && hour < 18) {
-      return 'day'; // İkindi sonu - hala gündüz
-    } else if (hour >= 18 && hour < 20) {
-      return 'sunset'; // Günbatımı
-    } else {
-      return 'night'; // Gece
-    }
   }
 
   List<Color> _getColorsForAnimationType(String animationType) {
@@ -169,7 +137,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
         return [
           const Color(0xFFFF6B6B), // Red
           const Color(0xFFFFD93D), // Yellow
-          const Color.fromARGB(255, 255, 177, 95), // Light green
+          const Color.fromARGB(255, 255, 177, 95), // Light orange
         ];
       case 'night':
       default:

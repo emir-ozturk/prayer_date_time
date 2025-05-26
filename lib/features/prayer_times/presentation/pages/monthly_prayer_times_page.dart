@@ -37,7 +37,7 @@ class MonthlyPrayerTimesPage extends StatelessWidget {
             ),
             Text(
               'Aylık Namaz Vakitleri',
-              style: TextStyle(color: AppColors.primary.withOpacity(0.7), fontSize: 14),
+              style: TextStyle(color: AppColors.primary.withValues(alpha: 0.7), fontSize: 14),
             ),
           ],
         ),

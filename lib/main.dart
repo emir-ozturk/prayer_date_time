@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/service_locator.dart';
 import 'core/theme/app_theme.dart';
+import 'features/prayer_times/presentation/bloc/background_animation_bloc.dart';
 import 'features/prayer_times/presentation/bloc/city_selection_bloc.dart';
 import 'features/prayer_times/presentation/bloc/prayer_times_bloc.dart';
 import 'features/prayer_times/presentation/pages/home_page.dart';
@@ -38,6 +39,7 @@ class PrayerTimesApp extends StatelessWidget {
             getDistricts: serviceLocator.getDistricts,
           ),
         ),
+        BlocProvider<BackgroundAnimationBloc>(create: (context) => BackgroundAnimationBloc()),
       ],
       child: MaterialApp(
         title: 'Namaz Vakitleri',
