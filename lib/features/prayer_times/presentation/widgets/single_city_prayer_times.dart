@@ -41,7 +41,7 @@ class SingleCityPrayerTimes extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(AppIcons.mosque, color: Colors.white, size: 24),
+          const Icon(AppIcons.dateRange, color: Colors.white, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -89,7 +89,7 @@ class SingleCityPrayerTimes extends StatelessWidget {
     });
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
         children: prayers.asMap().entries.map((entry) {
           final index = entry.key;
@@ -105,7 +105,7 @@ class SingleCityPrayerTimes extends StatelessWidget {
                 prayer['color'] as Color,
                 currentPrayerName,
               ),
-              if (!isLast) Divider(color: AppColors.textHint.withValues(alpha: 0.3), height: 1),
+              if (!isLast) Divider(color: AppColors.textHint.withValues(alpha: 0.2), height: 1),
             ],
           );
         }).toList(),
@@ -153,8 +153,8 @@ class SingleCityPrayerTimes extends StatelessWidget {
                 ),
                 if (isCurrent)
                   Text(
-                    'Şu anki namaz vakti',
-                    style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500),
+                    'Şu anki vakit',
+                    style: TextStyle(fontSize: 14, color: color, fontWeight: FontWeight.w500),
                   ),
               ],
             ),

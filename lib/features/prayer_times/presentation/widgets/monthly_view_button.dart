@@ -8,13 +8,19 @@ import '../pages/monthly_prayer_times_page.dart';
 class MonthlyViewButton extends StatelessWidget {
   final List<PrayerTimes> monthlyPrayerTimes;
   final String cityName;
+  final String districtId;
 
-  const MonthlyViewButton({super.key, required this.monthlyPrayerTimes, required this.cityName});
+  const MonthlyViewButton({
+    super.key,
+    required this.monthlyPrayerTimes,
+    required this.cityName,
+    required this.districtId,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Material(
         elevation: 0,
         borderRadius: BorderRadius.circular(20),
@@ -111,8 +117,11 @@ class MonthlyViewButton extends StatelessWidget {
   void _navigateToMonthlyView(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) =>
-            MonthlyPrayerTimesPage(monthlyPrayerTimes: monthlyPrayerTimes, cityName: cityName),
+        builder: (context) => MonthlyPrayerTimesPage(
+          monthlyPrayerTimes: monthlyPrayerTimes,
+          cityName: cityName,
+          districtId: districtId,
+        ),
       ),
     );
   }

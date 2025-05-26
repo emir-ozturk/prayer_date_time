@@ -177,28 +177,58 @@ class AppDateUtils {
       final maghrib = prayerTimes['maghrib'] ?? '';
       final isha = prayerTimes['isha'] ?? '';
 
+      print('DEBUG: Current time: $currentTime');
+      print(
+        'DEBUG: Prayer times - Fajr: $fajr, Sunrise: $sunrise, Dhuhr: $dhuhr, Asr: $asr, Maghrib: $maghrib, Isha: $isha',
+      );
+
       // Check each prayer time period
-      if (_isTimeBetween(currentTime, fajr, sunrise)) {
-        return 'night'; // İmsak - Güneş arası -> night
+      if (_isTimeBetween(currentTime, '00:00', fajr) ||
+          _isTimeBetween(currentTime, isha, '23:59')) {
+        print('DEBUG: Between Isha-Fajr -> night');
+        return 'night'; // Yatsı - İmsak arası -> night
+      } else if (_isTimeBetween(currentTime, fajr, sunrise)) {
+        print('DEBUG: Between Fajr-Sunrise -> dawn');
+        return 'dawn'; // İmsak - Güneş arası -> dawn (şafak)
       } else if (_isTimeBetween(currentTime, sunrise, dhuhr)) {
-        return 'dawn'; // Güneş - Öğle arası -> dawn
+        print('DEBUG: Between Sunrise-Dhuhr -> day');
+        return 'day'; // Güneş - Öğle arası -> day
       } else if (_isTimeBetween(currentTime, dhuhr, asr)) {
+        print('DEBUG: Between Dhuhr-Asr -> day');
         return 'day'; // Öğle - İkindi arası -> day
       } else if (_isTimeBetween(currentTime, asr, maghrib)) {
-        return 'day'; // İkindi - Akşam arası -> day
+        print('DEBUG: Between Asr-Maghrib -> day (late afternoon)');
+        return 'day'; // İkindi - Akşam arası -> day (geç öğleden sonra)
       } else if (_isTimeBetween(currentTime, maghrib, isha)) {
+        print('DEBUG: Between Maghrib-Isha -> sunset');
         return 'sunset'; // Akşam - Yatsı arası -> sunset
       } else {
-        return 'night'; // Yatsı - İmsak arası -> night
+        print('DEBUG: No match found, using fallback');
+        // Fallback to time-based logic
+        final hour = now.hour;
+        if (hour >= 4 && hour < 6) {
+          return 'night';
+        } else if (hour >= 6 && hour < 8) {
+          return 'dawn';
+        } else if (hour >= 8 && hour < 18) {
+          return 'day';
+        } else if (hour >= 18 && hour < 20) {
+          return 'sunset';
+        } else {
+          return 'night';
+        }
       }
     } catch (e) {
+      print('DEBUG: Error in getPrayerBasedAnimationType: $e');
       // Fallback to time-based logic if prayer times are not available
       final hour = DateTime.now().hour;
-      if (hour >= 5 && hour < 7) {
+      if (hour >= 4 && hour < 6) {
+        return 'night';
+      } else if (hour >= 6 && hour < 8) {
         return 'dawn';
-      } else if (hour >= 7 && hour < 17) {
+      } else if (hour >= 8 && hour < 18) {
         return 'day';
-      } else if (hour >= 17 && hour < 19) {
+      } else if (hour >= 18 && hour < 20) {
         return 'sunset';
       } else {
         return 'night';

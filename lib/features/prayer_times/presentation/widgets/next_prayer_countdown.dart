@@ -20,7 +20,7 @@ class NextPrayerCountdown extends StatelessWidget {
     final timeRemaining = AppDateUtils.getDetailedTimeRemaining(nextPrayer['time']!);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       child: PrayerInfoWidget(prayerName: nextPrayer['name']!, timeRemaining: timeRemaining),
     );
   }

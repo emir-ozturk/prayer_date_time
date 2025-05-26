@@ -35,6 +35,7 @@ class AppIcons {
   static const IconData schedule = Icons.schedule;
   static const IconData clock = Icons.access_time;
   static const IconData alarm = Icons.alarm;
+  static const IconData dateRange = Icons.date_range;
 
   // UI icons
   static const IconData expand = Icons.expand_more;

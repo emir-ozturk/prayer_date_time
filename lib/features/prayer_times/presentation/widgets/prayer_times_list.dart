@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/prayer_times.dart';
+import '../bloc/prayer_times_bloc.dart';
+import '../bloc/prayer_times_event.dart';
 import 'prayer_time_card.dart';
 
 class PrayerTimesList extends StatelessWidget {
@@ -23,7 +26,10 @@ class PrayerTimesList extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final todayPrayerTimes = _getTodayPrayerTimes(prayerTimesList);
+        final todayPrayerTimes = _getTodayPrayerTimes(context, prayerTimesList, districtId);
+        if (todayPrayerTimes == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
         return PrayerTimeCard(
           prayerTimes: todayPrayerTimes,
@@ -34,7 +40,11 @@ class PrayerTimesList extends StatelessWidget {
     );
   }
 
-  PrayerTimes _getTodayPrayerTimes(List<PrayerTimes> prayerTimesList) {
+  PrayerTimes? _getTodayPrayerTimes(
+    BuildContext context,
+    List<PrayerTimes> prayerTimesList,
+    String districtId,
+  ) {
     final today = DateTime.now();
 
     // Try to find today's prayer times
@@ -46,7 +56,8 @@ class PrayerTimesList extends StatelessWidget {
       }
     }
 
-    // If not found, return the first available
-    return prayerTimesList.first;
+    // If today's prayer times are not found, trigger a refresh and return null
+    context.read<PrayerTimesBloc>().add(RefreshPrayerTimes(districtId: districtId));
+    return null;
   }
 }
