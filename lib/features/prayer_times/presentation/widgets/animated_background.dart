@@ -80,15 +80,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with TickerProv
       child: BlocBuilder<BackgroundAnimationBloc, BackgroundAnimationState>(
         builder: (context, state) {
           if (!_isInitialized || state is BackgroundAnimationInitial) {
-            return Container(
-              color: Colors.white,
-              child: Stack(
-                children: [
-                  widget.child,
-                  Center(child: CircularProgressIndicator()),
-                ],
-              ),
-            );
+            return Container(color: Colors.white, child: widget.child);
           }
 
           String animationType = 'night';
